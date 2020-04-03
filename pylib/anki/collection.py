@@ -402,32 +402,34 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
         have: Dict[int, Dict[int, int]] = {}
         dids: Dict[int, Optional[int]] = {}
         dues: Dict[int, int] = {}
-        for id, nid, ord, did, due, odue, odid, type in self.db.execute(
-            "select id, nid, ord, did, due, odue, odid, type from cards where nid in "
-            + snids
-        ):
+
+        for db_card in session.query(Card).filter(Card.in_(snids)):
             # existing cards
-            if nid not in have:
-                have[nid] = {}
-            have[nid][ord] = id
+            if db_card.note_id not in have:
+                have[db_card.note_id] = {}
+            have[db_card.note_id][db_card.ord] = db_card.id
             # if in a filtered deck, add new cards to original deck
-            if odid != 0:
-                did = odid
+            if db_card.original_deck_id != 0:
+                did = db_card.original_deck_id
+            else:
+                did = db_card.deck_id
             # and their dids
-            if nid in dids:
-                if dids[nid] and dids[nid] != did:
+            if db_card.note_id in dids:
+                if dids[db_card.note_id] and dids[db_card.note_id] != did:
                     # cards are in two or more different decks; revert to
                     # model default
-                    dids[nid] = None
+                    dids[db_card.note_id] = None
             else:
                 # first card or multiple cards in same deck
-                dids[nid] = did
+                dids[db_card.note_id] = did
             # save due
-            if odid != 0:
-                due = odue
-            if nid not in dues and type == 0:
+            if db_card.original_deck_id != 0:
+                due = db_card.original_due
+            else:
+                due = db_card.due
+            if db_card.note_id not in dues and db_card.type == 0:
                 # Add due to new card only if it's the due of a new sibling
-                dues[nid] = due
+                dues[db_card.note_id] = due
         # build cards for each note
         data = []
         ts = maxID(self.db)
@@ -455,19 +457,21 @@ crt=?, mod=?, scm=?, dty=?, usn=?, ls=?, conf=?""",
                     # use sibling due# if there is one, else use a new id
                     if due is None:
                         due = self.nextID("pos")
-                    data.append((ts, nid, did, t["ord"], now, usn, due))
+
+                    session.add(sqlalchemy_models.Card(
+                        id=ts,
+                        note_id=nid,
+                        deck_id=did,
+                        ordinal=t['ord'],
+                        modification_time=now,
+                        update_sequence_number=usn,
+                        due=due))
                     ts += 1
             # note any cards that need removing
             if nid in have:
                 for ord, id in list(have[nid].items()):
                     if ord not in avail:
                         rem.append(id)
-        # bulk update
-        self.db.executemany(
-            """
-insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
-            data,
-        )
         return rem
 
     # type is no longer used
@@ -500,9 +504,9 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         card = Card(self)
         card.nid = note.id
         card.ord = template["ord"]  # type: ignore
-        card.did = self.db.scalar(
-            "select did from cards where nid = ? and ord = ?", card.nid, card.ord
-        )
+
+        card.did = session.query(sqlalchemy_models.Card.did)\
+            .filter_by(note_id=card.nid, ordinal=card.ord).first()[0]
         # Use template did (deck override) if valid, otherwise did in argument, otherwise model did
         if not card.did:
             if template["did"] and str(template["did"]) in self.decks.decks:
@@ -550,7 +554,7 @@ insert into cards values (?,?,?,?,?,?,0,0,?,0,0,0,0,0,0,0,0,"")""",
         if not ids:
             return
         sids = ids2str(ids)
-        nids = self.db.list("select nid from cards where id in " + sids)
+        nids = [r[0] for r in session.query(Card.note_id).filter(Card.id.in_(sids))]
         # remove cards
         self._logRem(ids, REM_CARD)
         self.db.execute("delete from cards where id in " + sids)
