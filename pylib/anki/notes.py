@@ -19,10 +19,7 @@ class Note:
     data = ""
 
     def __init__(
-        self,
-        col: anki.collection.Collection,
-        model: NoteType = None,
-        id: int = None,
+        self, col: anki.collection.Collection, model: NoteType = None, id: int = None,
     ) -> None:
         assert not (model and id)
         self.col = col.weakref()

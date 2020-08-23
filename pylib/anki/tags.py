@@ -39,9 +39,7 @@ class TagManager:
     # Registering and fetching tags
     #############################################################
 
-    def register(
-        self, tags: Collection[str], usn: int = None, clear=False
-    ) -> None:
+    def register(self, tags: Collection[str], usn: int = None, clear=False) -> None:
         if usn is None:
             preserve_usn = False
             usn_ = 0

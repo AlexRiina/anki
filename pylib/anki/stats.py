@@ -257,9 +257,7 @@ and due = ?"""
         self._line(i, _("Due tomorrow"), tomorrow)
         return self._lineTbl(i)
 
-    def _due(
-        self, start: int = None, end: int = None, chunk: int = 1
-    ) -> Any:
+    def _due(self, start: int = None, end: int = None, chunk: int = 1) -> Any:
         lim = ""
         if start is not None:
             lim += " and due-%d >= %d" % (self.col.sched.today, start)

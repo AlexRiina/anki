@@ -199,9 +199,7 @@ class Collection:
         # to check if the backend updated the modification time.
         return self.db.last_begin_at <= self.mod
 
-    def save(
-        self, name: str = None, mod: int = None, trx: bool = True
-    ) -> None:
+    def save(self, name: str = None, mod: int = None, trx: bool = True) -> None:
         "Flush, commit DB, and take out another write lock if trx=True."
         # commit needed?
         if self.db.mod or self.modified_after_begin():

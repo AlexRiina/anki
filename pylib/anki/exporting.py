@@ -26,10 +26,7 @@ class Exporter:
     includeMedia: Optional[bool] = None
 
     def __init__(
-        self,
-        col: Collection,
-        did: int = None,
-        cids: List[int] = None,
+        self, col: Collection, did: int = None, cids: List[int] = None,
     ) -> None:
         self.col = col.weakref()
         self.did = did

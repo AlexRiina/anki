@@ -197,10 +197,7 @@ class Progress:
 
 class RustBackend(RustBackendGenerated):
     def __init__(
-        self,
-        ftl_folder: str = None,
-        langs: List[str] = None,
-        server: bool = False,
+        self, ftl_folder: str = None, langs: List[str] = None, server: bool = False,
     ) -> None:
         # pick up global defaults if not provided
         if ftl_folder is None:

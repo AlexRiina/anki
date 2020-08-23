@@ -357,9 +357,7 @@ order by due"""
             # shouldn't reach
             return None
 
-    def _deckNewLimit(
-        self, did: int, fn: Callable[[Deck], int] = None
-    ) -> int:
+    def _deckNewLimit(self, did: int, fn: Callable[[Deck], int] = None) -> int:
         if not fn:
             fn = self._deckNewLimitSingle
         sel = self.col.decks.get(did)
@@ -667,9 +665,7 @@ did = ? and queue = {QUEUE_TYPE_DAY_LEARN_RELEARN} and due <= ? limit ?""",
         tod = self._leftToday(conf["delays"], tot)
         return tot + tod * 1000
 
-    def _leftToday(
-        self, delays: List[int], left: int, now: int = None,
-    ) -> int:
+    def _leftToday(self, delays: List[int], left: int, now: int = None,) -> int:
         "The number of steps that can be completed by the day cutoff."
         if not now:
             now = intTime()
@@ -773,9 +769,7 @@ and due <= ? limit ?)""",
         d = self.col.decks.get(self.col.decks.selected(), default=False)
         return self._deckRevLimitSingle(d)
 
-    def _deckRevLimitSingle(
-        self, d: Dict[str, Any], parentLimit: int = None
-    ) -> int:
+    def _deckRevLimitSingle(self, d: Dict[str, Any], parentLimit: int = None) -> int:
         # invalid deck selected?
         if not d:
             return 0

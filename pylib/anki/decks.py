@@ -310,9 +310,7 @@ class DeckManager:
             config=to_json_bytes(conf), preserve_usn_and_mtime=preserve_usn
         )
 
-    def add_config(
-        self, name: str, clone_from: DeckConfig = None
-    ) -> DeckConfig:
+    def add_config(self, name: str, clone_from: DeckConfig = None) -> DeckConfig:
         if clone_from is not None:
             conf = copy.deepcopy(clone_from)
             conf["id"] = 0
@@ -322,9 +320,7 @@ class DeckManager:
         self.update_config(conf)
         return conf
 
-    def add_config_returning_id(
-        self, name: str, clone_from: DeckConfig = None
-    ) -> int:
+    def add_config_returning_id(self, name: str, clone_from: DeckConfig = None) -> int:
         return self.add_config(name, clone_from)["id"]
 
     def remove_config(self, id) -> None:
@@ -508,9 +504,7 @@ class DeckManager:
 
         return childMap
 
-    def parents(
-        self, did: int, nameMap: Dict[str, Deck] = None
-    ) -> List[Deck]:
+    def parents(self, did: int, nameMap: Dict[str, Deck] = None) -> List[Deck]:
         "All parents of did."
         # get parent and grandparent names
         parents_names: List[str] = []
